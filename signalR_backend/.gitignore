@@ -1,0 +1,94 @@
+﻿# Ignore build outputs
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+.idea/
+*.sln.iml
+
+# Logs and database files
+*.log
+*.tlog
+*.pdb
+*.mdb
+*.db
+*.ldf
+
+# Package directories (for npm and NuGet)
+node_modules/
+packages/
+wwwroot/lib/
+.DS_Store
+
+# Environment and configuration files
+.env
+.env.local
+.env.*.local
+
+# TypeScript build artifacts
+*.tsbuildinfo
+
+# React build outputs
+build/
+dist/
+
+# ASP.NET Core secrets and configuration
+appsettings.json
+appsettings.Development.json
+secrets.json
+
+# Dependency locks
+package-lock.json
+yarn.lock
+
+# Visual Studio Code specific
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/jsconfig.json
+.vscode/cspell.json
+
+# Visual Studio specific
+.vscode/*
+.vs/
+*.sln.cache
+
+# IDE specific files (JetBrains, Rider, etc.)
+.idea/
+*.iml
+*.iws
+
+# macOS-specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Windows-specific files
+Thumbs.db
+Desktop.ini
+
+# Optional: Ignore all build files, except Web.config
+!Web.config
+
+# Coverage results
+coverage/
+*.lcov
+
+# Lock files for dependency management
+*.lock.json
+
+# Temporary files for TypeScript and JavaScript
+*.tmp
+*.bak
+*.swp
+
+# End of file
