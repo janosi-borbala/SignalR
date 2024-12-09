@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using signalR_backend.Data;
 using signalR_backend.Hubs;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,11 +22,11 @@ builder.Logging.AddConsole();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddSignalR(options =>
+builder.Services.AddSignalR(options => options.EnableDetailedErrors = true).AddJsonProtocol(options =>
 {
-    options.EnableDetailedErrors = true;
+    options.PayloadSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 });
-
 
 var app = builder.Build();
 

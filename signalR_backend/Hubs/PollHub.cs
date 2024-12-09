@@ -40,15 +40,7 @@ namespace signalR_backend.Hubs
             _dbContext.Polls.Add(poll);
             await _dbContext.SaveChangesAsync();
 
-            var pollDto = new
-            {
-                poll.Id,
-                poll.Key,
-                poll.Title,
-                Options = poll.Options.Select(o => new { o.Id, o.Text }).ToList()
-            };
-
-            await Clients.All.SendAsync("PollCreated", pollDto);
+            await Clients.All.SendAsync("PollCreated", poll);
         }
 
         public async Task<List<Poll>> GetPolls()
