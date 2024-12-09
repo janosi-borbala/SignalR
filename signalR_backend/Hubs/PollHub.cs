@@ -30,6 +30,7 @@ namespace signalR_backend.Hubs
             {
                 Title = title,
                 CreatedBy = userId,
+                Key = Guid.NewGuid().ToString("N").Substring(0, 6),
                 Options = options.Select(optionText => new Option
                 {
                     Text = optionText
@@ -42,13 +43,13 @@ namespace signalR_backend.Hubs
             var pollDto = new
             {
                 poll.Id,
+                poll.Key,
                 poll.Title,
                 Options = poll.Options.Select(o => new { o.Id, o.Text }).ToList()
             };
 
             await Clients.All.SendAsync("PollCreated", pollDto);
         }
-
 
         public async Task<List<Poll>> GetPolls()
         {
@@ -59,7 +60,7 @@ namespace signalR_backend.Hubs
                 .ToListAsync();
         }
 
-        public async Task DeletePoll(string pollId)
+        public async Task DeletePoll(Guid pollId)
         {
             var poll = await _dbContext.Polls
                 .Include(p => p.Options)
@@ -76,5 +77,6 @@ namespace signalR_backend.Hubs
 
             await Clients.All.SendAsync("PollDeleted", pollId);
         }
+
     }
 }

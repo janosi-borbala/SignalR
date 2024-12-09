@@ -40,7 +40,13 @@
             modelBuilder.Entity<OptionUser>()
                 .HasIndex(ou => new { ou.OptionId, ou.UserId })
                 .IsUnique();
+
+            // Ensure Poll.Key is unique
+            modelBuilder.Entity<Poll>()
+                .HasIndex(p => p.Key)
+                .IsUnique();
         }
+
     }
 
 }

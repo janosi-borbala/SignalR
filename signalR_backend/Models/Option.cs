@@ -4,8 +4,8 @@
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public string Text { get; set; }
-        public string PollId { get; set; }
+        public Guid PollId { get; set; }
         public Poll Poll { get; set; }
-        public List<OptionUser> OptionUsers { get; set; } = new(); 
+        public List<OptionUser> OptionUsers { get; set; } = new();
     }
 }
