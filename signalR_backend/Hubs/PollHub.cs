@@ -70,5 +70,68 @@ namespace signalR_backend.Hubs
             await Clients.All.SendAsync("PollDeleted", pollId);
         }
 
+        public async Task Vote(Guid optionId, Guid userId)
+        {
+            var option = await _dbContext.Options
+                .Include(o => o.Poll)
+                .FirstOrDefaultAsync(o => o.Id == optionId);
+
+            if (option == null)
+            {
+                throw new HubException("Option not found.");
+            }
+
+            var existingVote = await _dbContext.OptionUsers
+                .FirstOrDefaultAsync(ou => ou.OptionId == optionId && ou.UserId == userId);
+
+            if (existingVote != null)
+            {
+                _dbContext.OptionUsers.Remove(existingVote);
+                await _dbContext.SaveChangesAsync();
+
+                var voteCount = await _dbContext.OptionUsers
+                    .CountAsync(ou => ou.OptionId == optionId);
+
+                await Clients.All.SendAsync("VoteToggled", new
+                {
+                    OptionId = optionId,
+                    VoteCount = voteCount,
+                    VoterRemoved = new { userId }
+                });
+
+                return;
+            }
+
+            var vote = new OptionUser
+            {
+                OptionId = optionId,
+                UserId = userId
+            };
+
+            _dbContext.OptionUsers.Add(vote);
+            await _dbContext.SaveChangesAsync();
+
+            var updatedVoteCount = await _dbContext.OptionUsers
+                .CountAsync(ou => ou.OptionId == optionId);
+
+            var user = await _dbContext.Users
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new HubException("User not found.");
+            }
+
+            await Clients.All.SendAsync("VoteToggled", new
+            {
+                OptionId = optionId,
+                VoteCount = updatedVoteCount,
+                VoterAdded = new
+                {
+                    user.Id,
+                    user.Name
+                }
+            });
+        }
     }
 }

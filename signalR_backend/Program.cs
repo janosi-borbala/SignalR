@@ -34,5 +34,6 @@ app.UseCors("AllowAll");
 app.UseRouting();
 
 app.MapHub<PollHub>("/pollhub");
+app.MapHub<UserHub>("/userhub");
 
 app.Run();
