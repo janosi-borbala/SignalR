@@ -5,6 +5,8 @@ import { BrowserRouter } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import LandingPage from "./LandingPage";
 import QuestionPage from "./QuestionPage";
+import AddPolePage from "./AddPolePage";
+import CreateUserComponent from "../components/CreateUserComponent";
 
 function ApplicationRouter() {
     return (
@@ -18,6 +20,8 @@ function ApplicationRouter() {
                         <Routes>
                             <Route path="/" element={<LandingPage />} />
                             <Route path="/quiz/" element={<QuestionPage />} />
+                            <Route path="/addpole/" element={<AddPolePage />} />
+                            <Route path="/createuser/" element={<CreateUserComponent />} />
                         </Routes>
                     </Switch>
                 </Row>

@@ -1,8 +1,27 @@
-import { useState } from "react";
-import { Button, Col, Container, Form, Row } from "react-bootstrap";
+// LandingPage.tsx
+import React, { useEffect, useState } from "react";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { signalRService } from "../services/SignalRService";
+import PollList from "../components/PollList";
 
-function LandingPage() {
+const LandingPage: React.FC = () => {
     const [quizCode, setQuizCode] = useState<string>("");
+    const [polls, setPolls] = useState<any[]>([]);
+
+    useEffect(() => {
+        // Initialize the SignalR connection
+        signalRService.initializeConnection(
+            (fetchedPolls: any[]) => {
+                setPolls(fetchedPolls);
+            },
+            (newPoll: any) => {
+                setPolls((prevPolls) => [...prevPolls, newPoll]);
+            },
+            (pollId: string) => {
+                setPolls((prevPolls) => prevPolls.filter((poll) => poll.id !== pollId));
+            }
+        );
+    }, []);
 
     const handleJoinQuiz = () => {
         if (quizCode.trim() === "") {
@@ -11,6 +30,10 @@ function LandingPage() {
             // Redirect or handle code submission
             console.log(`Joining quiz with code: ${quizCode}`);
         }
+    };
+
+    const handleDeletePoll = async (pollId: string) => {
+        await signalRService.deletePoll(pollId);
     };
 
     return (
@@ -42,6 +65,9 @@ function LandingPage() {
                             </Button>
                         </Form>
                     </Col>
+                </Row>
+                <Row className="w-100">
+                    <PollList polls={polls} onDelete={handleDeletePoll} />
                 </Row>
             </Container>
         </div>

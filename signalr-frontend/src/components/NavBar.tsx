@@ -12,6 +12,12 @@ function NavBar() {
                     <ul className="navbar-nav mr-auto">
                         <Link to="/" className="nav-item active nav-link">Home</Link>
                     </ul>
+                    <ul className="navbar-nav mr-auto">
+                        <Link to="/addpole" className="nav-item active nav-link">Add pole</Link>
+                    </ul>
+                    <ul className="navbar-nav mr-auto">
+                        <Link to="/createuser" className="nav-item active nav-link">CreateUser</Link>
+                    </ul>
                 </div>
             </nav>
         </div>
