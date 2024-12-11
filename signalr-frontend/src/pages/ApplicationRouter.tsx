@@ -13,11 +13,13 @@ import { userService } from "../services/userService";
 
 function ApplicationRouter() {
     const [polls, setPolls] = useState<any[]>([]);
+    // const [pollId, setPollId] = useState<string>("");
 
     useEffect(() => {
         pollService.initializeConnection(
             (fetchedPolls: any[]) => {
                 setPolls(fetchedPolls);
+                console.log(fetchedPolls);
             },
             (newPoll: any) => {
                 setPolls((prevPolls) => [...prevPolls, newPoll]);
@@ -47,14 +49,23 @@ function ApplicationRouter() {
 
     const handleCreateUser = async (userName: string): Promise<string> => {
         try {
-            var s = await userService.createUser(userName);
-            console.log(s)
+            await userService.createUser(userName);
             return "User created successfully!";
         } catch (err) {
             console.error("Error creating user:", err);
             return "Failed to create user. Please try again.";
         }
     };
+
+    const handleVote = async (pollId: string, optionId: string) => {
+        try {
+            await pollService.vote(pollId, optionId);
+            return "Vote submitted successfully!";
+        } catch (err) {
+            console.error("Error submitting vote:", err);
+            return "Failed to submit vote. Please try again.";
+        }
+    }
 
     return (
         <BrowserRouter>
@@ -65,10 +76,31 @@ function ApplicationRouter() {
                 <Row id="sb-menu-row" >
                     <Switch className="d-flex flex-column align-items-center justify-content-center">
                         <Routes>
-                            <Route path="/" element={<LandingPage polls={polls} handleDeletePoll={handleDeletePoll} />} />
-                            <Route path="/quiz/" element={<QuestionPage />} />
-                            <Route path="/addpole/" element={<AddPolePage handleCreatePoll={handleCreatePoll} polls={polls} handleDeletePoll={handleDeletePoll} />} />
-                            <Route path="/createuser/" element={<CreateUserComponent handleCreateUser={handleCreateUser} />} />
+                            <Route path="/" element={
+                                <LandingPage
+                                    polls={polls}
+                                    handleDeletePoll={handleDeletePoll}
+                                />}
+                            />
+                            <Route path="/question/:pollId" element={
+                                <QuestionPage
+                                    polls={polls}
+                                    handleVote={handleVote}
+                                />}
+                            />
+                            <Route path="/addpole/" element={
+                                <AddPolePage
+                                    handleCreatePoll={handleCreatePoll}
+                                    polls={polls}
+                                    handleDeletePoll={handleDeletePoll}
+                                />
+                            }
+                            />
+                            <Route path="/createuser/" element={
+                                <CreateUserComponent
+                                    handleCreateUser={handleCreateUser}
+                                />}
+                            />
                         </Routes>
                     </Switch>
                 </Row>

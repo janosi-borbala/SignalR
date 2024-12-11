@@ -74,7 +74,6 @@ function AddPollPage(props: AddPollPageProps) {
                     Create Poll
                 </button>
             </div>
-
             <PollList polls={props.polls} onDelete={props.handleDeletePoll} />
         </div>
     );

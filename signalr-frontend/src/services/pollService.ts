@@ -67,7 +67,6 @@ export class PollService {
             .catch((err) => console.error("SignalR Connection Error:", err));
     }
 
-    // Delete a poll
     public deletePoll(pollId: string): Promise<void> {
         if (this.connection) {
             return this.connection.invoke("DeletePoll", pollId);
@@ -75,10 +74,16 @@ export class PollService {
         return Promise.reject("Connection not established");
     }
 
-    // Create a poll
     public createPoll(title: string, options: string[], userId: string): Promise<void> {
         if (this.connection) {
             return this.connection.invoke("CreatePoll", title, options, userId);
+        }
+        return Promise.reject("Connection not established");
+    }
+
+    public vote(optionId: string, userId: string): Promise<void> {
+        if (this.connection) {
+            return this.connection.invoke("Vote", optionId, userId);
         }
         return Promise.reject("Connection not established");
     }

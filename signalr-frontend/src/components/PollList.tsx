@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 interface PollListProps {
     polls: any[];
@@ -21,11 +22,14 @@ const PollList: React.FC<PollListProps> = ({ polls, onDelete }) => {
                 polls.map((poll) => (
                     <div key={poll.id} className="card mb-3">
                         <div className="card-body">
-                            <h5 className="card-title">{poll.title}</h5>
+                            <Link to={`/question/${poll.id}`} className="text-decoration-none">
+                                <strong>{poll.title}</strong>
+                            </Link>
+                            <br />
                             <Button
                                 variant="danger"
                                 size="sm"
-                                className="mb-3"
+                                className="mb-3 mt-3"
                                 onClick={() => onDelete(poll.id)}
                             >
                                 Delete

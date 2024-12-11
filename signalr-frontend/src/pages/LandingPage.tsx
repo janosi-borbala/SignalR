@@ -1,21 +1,45 @@
 import { useState } from "react";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import PollList from "../components/PollList";
+import { useNavigate } from "react-router-dom";
+
+interface QuestionOption {
+    id: string;
+    text: string;
+}
+
+interface Poll {
+    id: string;
+    title: string;
+    key: string;
+    options: QuestionOption[];
+    createdAt: string;
+    createdBy: string;
+}
 
 interface LandingPageInterface {
-    polls: any[];
+    polls: Poll[];
     handleDeletePoll: (pollId: string) => Promise<void>
 }
 
 function LandingPage(props: LandingPageInterface) {
     const [quizCode, setQuizCode] = useState<string>("");
+    const navigate = useNavigate();
 
     const handleJoinQuiz = () => {
-        if (quizCode.trim() === "") {
+        const code: string = quizCode.trim();
+        if (code === "") {
             alert("Please enter a code to join the quiz.");
         } else {
             // Redirect or handle code submission
             console.log(`Joining quiz with code: ${quizCode}`);
+            const poll = props.polls.find(p => p.key === code);
+            if (poll) {
+                // Navigate to the question form for the selected poll
+                navigate(`/question/${poll.id}`);
+            } else {
+                alert("No poll found with the given code.");
+            }
         }
     };
 
