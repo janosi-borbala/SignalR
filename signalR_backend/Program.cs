@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using signalR_backend.Data;
 using signalR_backend.Hubs;
@@ -22,11 +23,17 @@ builder.Logging.AddConsole();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddSignalR(options => options.EnableDetailedErrors = true).AddJsonProtocol(options =>
+builder.Services.AddSignalR(options => options.EnableDetailedErrors = true)
+.AddHubOptions<PollHub>(options =>
+{
+    options.AddFilter<PollOwnershipFilter>();
+}).AddJsonProtocol(options =>
 {
     options.PayloadSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
     options.PayloadSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 });
+
+builder.Services.AddScoped<PollOwnershipFilter>();
 
 var app = builder.Build();
 

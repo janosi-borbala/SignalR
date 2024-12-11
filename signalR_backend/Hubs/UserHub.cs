@@ -21,14 +21,12 @@ namespace signalR_backend.Hubs
                 throw new HubException("Username cannot be empty.");
             }
 
-            // Check if the username is already taken
             var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Name == username);
             if (existingUser != null)
             {
                 return existingUser.Id.ToString();
             }
 
-            // Create a new user
             var newUser = new User
             {
                 Name = username
@@ -37,7 +35,7 @@ namespace signalR_backend.Hubs
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
 
-            return newUser.Id.ToString(); // Return the GUID to the client
+            return newUser.Id.ToString();
         }
     }
 }

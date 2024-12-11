@@ -7,6 +7,8 @@ namespace signalR_backend.Hubs
 {
     public class PollHub : Hub
     {
+        public bool IsOwner { get; set; } = false;
+
         private readonly AppDbContext _dbContext;
 
         public PollHub(AppDbContext dbContext)
@@ -132,6 +134,44 @@ namespace signalR_backend.Hubs
                     user.Name
                 }
             });
+        }
+
+        public async Task<object> GetPollVotes(Guid pollId, Guid userId)
+        {
+            var poll = await _dbContext.Polls
+                .Include(p => p.Options)
+                .ThenInclude(o => o.OptionUsers)
+                .ThenInclude(ou => ou.User)
+                .FirstOrDefaultAsync(p => p.Id == pollId);
+
+            if (poll == null)
+            {
+                throw new HubException("Poll not found.");
+            }
+
+            if (IsOwner)
+            {
+                return poll.Options.Select(option => new
+                {
+                    OptionId = option.Id,
+                    OptionText = option.Text,
+                    Votes = option.OptionUsers.Select(ou => new
+                    {
+                        UserId = ou.UserId,
+                        UserName = ou.User.Name,
+                        VotedAt = ou.VotedAt
+                    }).ToList()
+                }).ToList();
+            }
+            else
+            {
+                return poll.Options.Select(option => new
+                {
+                    OptionId = option.Id,
+                    OptionText = option.Text,
+                    VoteCount = option.OptionUsers.Count
+                }).ToList();
+            }
         }
     }
 }
