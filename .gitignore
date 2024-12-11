@@ -40,7 +40,6 @@ build/
 dist/
 
 # ASP.NET Core secrets and configuration
-appsettings.json
 appsettings.Development.json
 secrets.json
 
