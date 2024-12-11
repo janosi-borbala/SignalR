@@ -1,17 +1,38 @@
 import { FormEvent, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const CreateUserComponent = () => {
-    const [userName, setUserName] = useState("");
+interface CreateUserComponentProps {
+    handleCreateUser: (username: string) => Promise<string>;
+}
 
-    const handleSubmit = (e: FormEvent) => {
+const CreateUserComponent = (props: CreateUserComponentProps) => {
+    const [userName, setUserName] = useState("");
+    const [statusMessage, setStatusMessage] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // const handleSubmit = (e: FormEvent) => {
+    //     e.preventDefault();
+    //     if (userName.trim()) {
+    //         props.handleCreateUser(userName);
+    //         setUserName(""); // Clear the input after submission
+    //     } else {
+    //         alert("Name field cannot be empty!");
+    //     }
+    // };
+
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        if (userName.trim()) {
-            // handleCreateUser(userName);
-            setUserName(""); // Clear the input after submission
-        } else {
-            alert("Name field cannot be empty!");
+
+        if (!userName.trim()) {
+            setStatusMessage("Name field cannot be empty!");
+            return;
         }
+
+        setIsSubmitting(true); // Start the loading state
+        const feedback = await props.handleCreateUser(userName);
+        setStatusMessage(feedback); // Update feedback message
+        setUserName(""); // Clear the input after submission
+        setIsSubmitting(false); // End the loading state
     };
 
     return (
@@ -29,10 +50,26 @@ const CreateUserComponent = () => {
                     />
                     <label htmlFor="userName">Name</label>
                 </div>
-                <button type="submit" className="btn btn-primary">
-                    Create User
+                <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={isSubmitting} // Disable button during submission
+                >
+                    {isSubmitting ? "Creating..." : "Create User"}
                 </button>
             </form>
+            {statusMessage && (
+                <div
+                    className={`alert mt-3 ${statusMessage.startsWith("Failed")
+                            ? "alert-danger"
+                            : "alert-success"
+                        }`}
+                    role="alert"
+                >
+                    {statusMessage}
+                </div>
+            )}
+
         </div>
     );
 };

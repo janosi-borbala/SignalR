@@ -1,6 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 
-export class SignalRService {
+export class PollService {
     private connection: signalR.HubConnection | null = null;
 
     // Initialize the SignalR connection
@@ -19,7 +19,7 @@ export class SignalRService {
         return this.connection
             .start()
             .then(async () => {
-                console.log("SignalR Connected!");
+                console.log("Connected to SignalR Pollhub!");
 
                 // Fetch initial list of polls
                 const fetchedPolls = await this.connection?.invoke("GetPolls");
@@ -84,4 +84,4 @@ export class SignalRService {
     }
 }
 
-export const signalRService = new SignalRService();
+export const pollService = new PollService();

@@ -1,27 +1,15 @@
-// pages/AddPollPage.tsx
-import React, { useState, useEffect } from "react";
-import { signalRService } from "../services/SignalRService"; // Import the SignalR service
-import PollList from "../components/PollList"; // Import PollList component
+import { useState } from "react";
+import PollList from "../components/PollList";
 
-const AddPollPage: React.FC = () => {
-    const [polls, setPolls] = useState<any[]>([]);
+interface AddPollPageProps {
+    handleCreatePoll: (pollTitle: string, pollOptions: string[]) => Promise<void>
+    polls: any[];
+    handleDeletePoll: (pollId: string) => Promise<void>;
+}
+
+function AddPollPage(props: AddPollPageProps) {
     const [pollTitle, setPollTitle] = useState("");
     const [pollOptions, setPollOptions] = useState<string[]>([""]);
-
-    useEffect(() => {
-        // Initialize the SignalR connection and set up event listeners
-        signalRService.initializeConnection(
-            (fetchedPolls: any[]) => {
-                setPolls(fetchedPolls);
-            },
-            (newPoll: any) => {
-                setPolls((prevPolls) => [...prevPolls, newPoll]);
-            },
-            (pollId: string) => {
-                setPolls((prevPolls) => prevPolls.filter((poll) => poll.id !== pollId));
-            }
-        );
-    }, []);
 
     const handleAddOption = () => {
         setPollOptions([...pollOptions, ""]);
@@ -33,22 +21,14 @@ const AddPollPage: React.FC = () => {
         setPollOptions(newOptions);
     };
 
-    const handleDeletePoll = async (pollId: string) => {
-        try {
-            await signalRService.deletePoll(pollId);
-        } catch (err) {
-            console.error("Error deleting poll:", err);
-        }
-    };
-
-    const handleCreatePoll = async () => {
+    const onSubmit = async () => {
         if (!pollTitle || pollOptions.some((option) => !option.trim())) {
             alert("Poll title and all options must be filled.");
             return;
         }
 
         try {
-            await signalRService.createPoll(pollTitle, pollOptions, "00000000-0000-0000-0000-000000000001"); // Replace with actual userId if dynamic
+            props.handleCreatePoll(pollTitle, pollOptions);
             setPollTitle("");
             setPollOptions([""]);
         } catch (err) {
@@ -59,7 +39,6 @@ const AddPollPage: React.FC = () => {
     return (
         <div className="container mt-4">
             <h1 className="mb-4">Create Poll</h1>
-            {/* Poll Title Input */}
             <div className="form-floating mb-4">
                 <input
                     type="text"
@@ -87,18 +66,16 @@ const AddPollPage: React.FC = () => {
                 </div>
             ))}
 
-            {/* Buttons */}
             <div className="d-flex gap-2">
                 <button className="btn btn-secondary" onClick={handleAddOption}>
                     Add Option
                 </button>
-                <button className="btn btn-primary" onClick={handleCreatePoll}>
+                <button className="btn btn-primary" onClick={onSubmit}>
                     Create Poll
                 </button>
             </div>
 
-            {/* Display Polls */}
-            <PollList polls={polls} onDelete={handleDeletePoll} />
+            <PollList polls={props.polls} onDelete={props.handleDeletePoll} />
         </div>
     );
 };
