@@ -17,16 +17,10 @@ function ApplicationRouter() {
     const [selectedPollId, setSelectedPollId] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(localStorage.getItem('userId'));
 
-    const getUserId = (): string | null => {
-        return localStorage.getItem('userId');
-    };
-    //setUserId(getUserId());
-
     useEffect(() => {
         pollService.initializeConnection(
             (fetchedPolls: any[]) => {
                 setPolls(fetchedPolls);
-                //console.log(fetchedPolls);
             },
             (newPoll: any) => {
                 setPolls((prevPolls) => [...prevPolls, newPoll]);
@@ -65,7 +59,9 @@ function ApplicationRouter() {
         setUserId(userId);
     };
 
-
+    const getUserId = (): string | null => {
+        return localStorage.getItem('userId');
+    };
 
     const handleCreateUser = async (userName: string): Promise<string> => {
         try {
@@ -100,36 +96,25 @@ function ApplicationRouter() {
         }
     }
 
-    //const userId = getUserId();
+    const handleLogout = () => {
+        localStorage.removeItem("userId");
+        setUserId(null);
+    }
 
     return (
         <BrowserRouter>
             <Container fluid style={{ height: "100%" }}>
                 <Row>
-                    <NavBar />
+                    <NavBar handleLogout={handleLogout} />
                 </Row>
                 <Row id="sb-menu-row" >
                     <Switch className="d-flex flex-column align-items-center justify-content-center">
                         <Routes>
-                            {/* <Route path="/" element={
-                                <LandingPage
-                                    polls={polls}
-                                    handleDeletePoll={handleDeletePoll}
-                                />}
-                            /> */}
                             <Route path="/" element={userId ? (
                                 <LandingPage polls={polls} handleDeletePoll={handleDeletePoll} />
                             ) : (
                                 <Navigate to="/createuser" />
                             )} />
-                            {/* <Route path="/question/:pollId" element={
-                                <QuestionPage
-                                    polls={polls}
-                                    votes={votes}
-                                    handleVote={handleVote}
-                                    handleGetVotes={handleGetVotes}
-                                />}
-                            /> */}
                             <Route path="/question/:pollId" element={userId ? (
                                 <QuestionPage
                                     polls={polls}
@@ -140,15 +125,7 @@ function ApplicationRouter() {
                             ) : (
                                 <Navigate to="/createuser" />
                             )} />
-                            {/* <Route path="/addpole/" element={
-                                <AddPolePage
-                                    handleCreatePoll={handleCreatePoll}
-                                    polls={polls}
-                                    handleDeletePoll={handleDeletePoll}
-                                />
-                            }
-                            /> */}
-                            <Route path="/addpole" element={userId ? (
+                            <Route path="/addpoll" element={userId ? (
                                 <AddPollPage
                                     handleCreatePoll={handleCreatePoll}
                                     polls={polls}

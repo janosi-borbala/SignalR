@@ -1,6 +1,13 @@
+
+import { Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
-function NavBar() {
+interface NavBarProps {
+    handleLogout: () => void;
+}
+
+function NavBar(props: NavBarProps) {
+
     return (
         <div>
             <nav className="navbar navbar-expand navbar-dark bg-dark">
@@ -13,10 +20,13 @@ function NavBar() {
                         <Link to="/" className="nav-item active nav-link">Home</Link>
                     </ul>
                     <ul className="navbar-nav mr-auto">
-                        <Link to="/addpole" className="nav-item active nav-link">Add pole</Link>
+                        <Link to="/addpoll" className="nav-item active nav-link">Add poll</Link>
                     </ul>
-                    <ul className="navbar-nav mr-auto">
+                    {/* <ul className="navbar-nav mr-auto">
                         <Link to="/createuser" className="nav-item active nav-link">CreateUser</Link>
+                    </ul> */}
+                    <ul className="navbar-nav mr-auto ml-6">
+                        <Button className="nav-item active nav-link btn-danger ml-6" onClick={props.handleLogout}>Logout</Button>
                     </ul>
                 </div>
             </nav>
