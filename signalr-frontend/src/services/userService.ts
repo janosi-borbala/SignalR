@@ -21,7 +21,7 @@ export class UserService {
     }
 
     // Create a poll
-    public createUser(username: string): Promise<void> {
+    public createUser(username: string): Promise<string> {
         if (this.connection) {
             return this.connection.invoke("RegisterUser", username);
         }

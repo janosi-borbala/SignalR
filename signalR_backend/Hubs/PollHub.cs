@@ -151,11 +151,13 @@ namespace signalR_backend.Hubs
                 {
                     OptionId = option.Id,
                     OptionText = option.Text,
+                    VoteCount = option.OptionUsers.Count,
                     Votes = option.OptionUsers.Select(ou => new
                     {
                         UserId = ou.UserId,
                         UserName = ou.User.Name,
-                        VotedAt = ou.VotedAt
+                        VotedAt = ou.VotedAt,
+                        
                     }).ToList()
                 }).ToList();
             }

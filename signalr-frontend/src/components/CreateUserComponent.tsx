@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useNavigate } from "react-router-dom";
 
 interface CreateUserComponentProps {
     handleCreateUser: (username: string) => Promise<string>;
@@ -9,16 +10,7 @@ const CreateUserComponent = (props: CreateUserComponentProps) => {
     const [userName, setUserName] = useState("");
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // const handleSubmit = (e: FormEvent) => {
-    //     e.preventDefault();
-    //     if (userName.trim()) {
-    //         props.handleCreateUser(userName);
-    //         setUserName(""); // Clear the input after submission
-    //     } else {
-    //         alert("Name field cannot be empty!");
-    //     }
-    // };
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -33,6 +25,11 @@ const CreateUserComponent = (props: CreateUserComponentProps) => {
         setStatusMessage(feedback); // Update feedback message
         setUserName(""); // Clear the input after submission
         setIsSubmitting(false); // End the loading state
+
+        if (feedback.startsWith("User created successfully")) {
+            // Navigate to a new route if user creation is successful
+            navigate("/"); // Replace "/new-user" with the desired route
+        }
     };
 
     return (
@@ -61,8 +58,8 @@ const CreateUserComponent = (props: CreateUserComponentProps) => {
             {statusMessage && (
                 <div
                     className={`alert mt-3 ${statusMessage.startsWith("Failed")
-                            ? "alert-danger"
-                            : "alert-success"
+                        ? "alert-danger"
+                        : "alert-success"
                         }`}
                     role="alert"
                 >

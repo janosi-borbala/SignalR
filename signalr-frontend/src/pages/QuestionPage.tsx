@@ -42,7 +42,7 @@ function QuestionPage({ polls, votes, handleVote, handleGetVotes }: QuestionPage
     const poll: Poll = polls.find((poll) => poll.id === pollId);
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [answers, setAnswers] = useState<number[]>([]);
-    const userId = "411533D9-BFB0-45AA-93D8-F8C3881666EC";
+    const userId = localStorage.getItem('userId');
 
     useEffect(() => {
         if (pollId && poll) {
@@ -138,7 +138,9 @@ function QuestionPage({ polls, votes, handleVote, handleGetVotes }: QuestionPage
         event.preventDefault();
         if (selectedOption) {
             alert(`You selected: ${selectedOption}`);
-            handleVote(selectedOption, "411533D9-BFB0-45AA-93D8-F8C3881666EC");
+            if (userId !== null) {
+                handleVote(selectedOption, userId);
+            }
         } else {
             alert('Please select an option!');
         }

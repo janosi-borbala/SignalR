@@ -1,11 +1,11 @@
 import { Container, Row } from "react-bootstrap";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Switch from "react-bootstrap/esm/Switch";
 import { BrowserRouter } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import LandingPage from "./LandingPage";
 import QuestionPage from "./QuestionPage";
-import AddPolePage from "./AddPollPage";
+import AddPollPage from "./AddPollPage";
 import CreateUserComponent from "../components/CreateUserComponent";
 import { useEffect, useState } from "react";
 import { pollService } from "../services/pollService";
@@ -15,6 +15,12 @@ function ApplicationRouter() {
     const [polls, setPolls] = useState<any[]>([]);
     const [votes, setVotes] = useState<any[]>([]);
     const [selectedPollId, setSelectedPollId] = useState<string | null>(null);
+    const [userId, setUserId] = useState<string | null>(localStorage.getItem('userId'));
+
+    const getUserId = (): string | null => {
+        return localStorage.getItem('userId');
+    };
+    //setUserId(getUserId());
 
     useEffect(() => {
         pollService.initializeConnection(
@@ -42,15 +48,30 @@ function ApplicationRouter() {
 
     const handleCreatePoll = async (pollTitle: string, pollOptions: string[]) => {
         try {
-            await pollService.createPoll(pollTitle, pollOptions, "00000000-0000-0000-0000-000000000001"); // Replace with actual userId if dynamic
+            setUserId(getUserId());
+            if (userId) {
+                await pollService.createPoll(pollTitle, pollOptions, userId); // Replace with actual userId if dynamic
+            } else {
+                console.error("User ID is null. Cannot create poll.");
+            }
         } catch (err) {
             console.error("Error creating poll:", err);
         }
     };
 
+    // A function to save the user ID to localStorage
+    const saveUserId = (userId: string): void => {
+        localStorage.setItem('userId', userId);
+        setUserId(userId);
+    };
+
+
+
     const handleCreateUser = async (userName: string): Promise<string> => {
         try {
-            await userService.createUser(userName);
+            const u = await userService.createUser(userName);
+            console.log(u);
+            saveUserId(u);
             return "User created successfully!";
         } catch (err) {
             console.error("Error creating user:", err);
@@ -79,6 +100,8 @@ function ApplicationRouter() {
         }
     }
 
+    //const userId = getUserId();
+
     return (
         <BrowserRouter>
             <Container fluid style={{ height: "100%" }}>
@@ -88,28 +111,51 @@ function ApplicationRouter() {
                 <Row id="sb-menu-row" >
                     <Switch className="d-flex flex-column align-items-center justify-content-center">
                         <Routes>
-                            <Route path="/" element={
+                            {/* <Route path="/" element={
                                 <LandingPage
                                     polls={polls}
                                     handleDeletePoll={handleDeletePoll}
                                 />}
-                            />
-                            <Route path="/question/:pollId" element={
+                            /> */}
+                            <Route path="/" element={userId ? (
+                                <LandingPage polls={polls} handleDeletePoll={handleDeletePoll} />
+                            ) : (
+                                <Navigate to="/createuser" />
+                            )} />
+                            {/* <Route path="/question/:pollId" element={
                                 <QuestionPage
                                     polls={polls}
                                     votes={votes}
                                     handleVote={handleVote}
                                     handleGetVotes={handleGetVotes}
                                 />}
-                            />
-                            <Route path="/addpole/" element={
+                            /> */}
+                            <Route path="/question/:pollId" element={userId ? (
+                                <QuestionPage
+                                    polls={polls}
+                                    votes={votes}
+                                    handleVote={handleVote}
+                                    handleGetVotes={handleGetVotes}
+                                />
+                            ) : (
+                                <Navigate to="/createuser" />
+                            )} />
+                            {/* <Route path="/addpole/" element={
                                 <AddPolePage
                                     handleCreatePoll={handleCreatePoll}
                                     polls={polls}
                                     handleDeletePoll={handleDeletePoll}
                                 />
                             }
-                            />
+                            /> */}
+                            <Route path="/addpole" element={userId ? (
+                                <AddPollPage
+                                    handleCreatePoll={handleCreatePoll}
+                                    polls={polls}
+                                    handleDeletePoll={handleDeletePoll} />
+                            ) : (
+                                <Navigate to="/createuser" />
+                            )} />
                             <Route path="/createuser/" element={
                                 <CreateUserComponent
                                     handleCreateUser={handleCreateUser}
