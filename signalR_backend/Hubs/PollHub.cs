@@ -98,7 +98,7 @@ namespace signalR_backend.Hubs
                 {
                     OptionId = optionId,
                     VoteCount = voteCount,
-                    VoterRemoved = new { userId }
+                    VoterAdded = false,
                 });
 
                 return;
@@ -128,11 +128,7 @@ namespace signalR_backend.Hubs
             {
                 OptionId = optionId,
                 VoteCount = updatedVoteCount,
-                VoterAdded = new
-                {
-                    user.Id,
-                    user.Name
-                }
+                VoterAdded = true
             });
         }
 

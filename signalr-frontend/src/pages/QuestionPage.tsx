@@ -9,8 +9,9 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import * as signalR from '@microsoft/signalr';
 
 // Register the Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -40,36 +41,61 @@ function QuestionPage({ polls, votes, handleVote, handleGetVotes }: QuestionPage
     const { pollId } = useParams();
     const poll: Poll = polls.find((poll) => poll.id === pollId);
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [answers, setAnswers] = useState<any[]>([]);
-
+    const [answers, setAnswers] = useState<number[]>([]);
+    const userId = "411533D9-BFB0-45AA-93D8-F8C3881666EC";
 
     useEffect(() => {
-        if (pollId) {
-            console.log("Fetching votes for poll:", pollId);
-            handleGetVotes(pollId, "F3EA9F4B-149A-4FD3-A58F-B81895C33514").then((fetchedVotes) => {
-                console.log("Votes fetched", fetchedVotes);
+        if (pollId && poll) {
+            const initialAnswers = new Array(poll.options.length).fill(0);
+            setAnswers(initialAnswers);
+            console.log("intitial anserws", initialAnswers);
+            const newConnection = new signalR.HubConnectionBuilder()
+                .withUrl("https://localhost:5000/pollhub", {
+                    withCredentials: true,
+                })
+                .withAutomaticReconnect()
+                .build();
 
-                setLoading(false);
+            newConnection
+                .start()
+                .then(async () => {
+                    console.log("Connected to SignalR Pollhub!");
 
-                const answ = fetchedVotes.map((item: any) => item.voteCount);
-                setAnswers(answ);
-                console.log(answ);
-            });
+                    // Fetch initial list of polls
+                    const votes = await newConnection?.invoke("GetPollVotes", pollId, userId);
+                    console.log("Votes:", votes);
+                    if (!votes || !votes.$values) {
+                        console.error("Unexpected data structure for fetchedVotes:", votes);
+                        return;
+                    }
+                    const answ = votes.$values.map((item: any) => item.voteCount);
+                    console.log("Answers:", answ);
+                    setAnswers(answ);
+
+                    newConnection?.on("VoteToggled", newVote => {
+                        console.log("New Vote:", newVote);
+                        setAnswers(prevAnswers => {
+                            const newAnswers = [...prevAnswers];
+                            const newIndex = poll.options.findIndex((opt) => opt.id === newVote.optionId);
+                            if (newVote.voterAdded) {
+                                newAnswers[newIndex] += 1;
+                            } else {
+                                newAnswers[newIndex] -= 1;
+                            }
+                            console.log("New Answers:", newAnswers);
+                            return newAnswers;
+                        });
+                    });
+                })
+                .catch((err) => console.error("SignalR Connection Error:", err));
         }
-    }, [pollId]);
+    }, [pollId, userId, poll.options]);
 
     if (!poll) {
         return <div>Poll not found.</div>;
     }
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    //const labels = answers.map((_, index) => `Option ${index + 1}`);
     const labels = poll.options.map((opt) => opt.text);
-    //console.log(labels);
     const data = {
         labels, // Labels for the x-axis
         datasets: [
