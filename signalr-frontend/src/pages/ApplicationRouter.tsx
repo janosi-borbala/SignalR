@@ -13,13 +13,14 @@ import { userService } from "../services/userService";
 
 function ApplicationRouter() {
     const [polls, setPolls] = useState<any[]>([]);
-    // const [pollId, setPollId] = useState<string>("");
+    const [votes, setVotes] = useState<any[]>([]);
+    const [selectedPollId, setSelectedPollId] = useState<string | null>(null);
 
     useEffect(() => {
         pollService.initializeConnection(
             (fetchedPolls: any[]) => {
                 setPolls(fetchedPolls);
-                console.log(fetchedPolls);
+                //console.log(fetchedPolls);
             },
             (newPoll: any) => {
                 setPolls((prevPolls) => [...prevPolls, newPoll]);
@@ -57,6 +58,17 @@ function ApplicationRouter() {
         }
     };
 
+    const handleGetVotes = async (pollId: string, userId: string) => {
+        try {
+            const fetchedVotes = await pollService.getPollVotes(pollId, userId);
+            setVotes(fetchedVotes);
+            setSelectedPollId(pollId);
+            return fetchedVotes.$values;
+        } catch (err) {
+            console.error("Error fetching votes:", err);
+        }
+    };
+
     const handleVote = async (pollId: string, optionId: string) => {
         try {
             await pollService.vote(pollId, optionId);
@@ -85,7 +97,9 @@ function ApplicationRouter() {
                             <Route path="/question/:pollId" element={
                                 <QuestionPage
                                     polls={polls}
+                                    votes={votes}
                                     handleVote={handleVote}
+                                    handleGetVotes={handleGetVotes}
                                 />}
                             />
                             <Route path="/addpole/" element={

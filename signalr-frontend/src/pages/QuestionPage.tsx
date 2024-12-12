@@ -9,16 +9,11 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 // Register the Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-interface QuestionPageProps {
-    polls: any[];
-    handleVote: (pollId: string, optionId: string) => void;
-}
 
 interface QuestionOption {
     id: string;
@@ -34,15 +29,47 @@ interface Poll {
     createdBy: string;
 }
 
-function QuestionPage(props: QuestionPageProps) {
+interface QuestionPageProps {
+    polls: any[];
+    votes: { [key: string]: any }[];
+    handleVote: (pollId: string, optionId: string) => Promise<string>;
+    handleGetVotes: (pollId: string, userId: string) => Promise<any[]>;
+}
+
+function QuestionPage({ polls, votes, handleVote, handleGetVotes }: QuestionPageProps) {
     const { pollId } = useParams();
-    const poll: Poll = props.polls.find((poll) => poll.id === pollId);
+    const poll: Poll = polls.find((poll) => poll.id === pollId);
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
-    const answers = [12, 19, 3, 5, 2, 3];
+    const [loading, setLoading] = useState<boolean>(true);
+    const [answers, setAnswers] = useState<any[]>([]);
+
+
+    useEffect(() => {
+        if (pollId) {
+            console.log("Fetching votes for poll:", pollId);
+            handleGetVotes(pollId, "F3EA9F4B-149A-4FD3-A58F-B81895C33514").then((fetchedVotes) => {
+                console.log("Votes fetched", fetchedVotes);
+
+                setLoading(false);
+
+                const answ = fetchedVotes.map((item: any) => item.voteCount);
+                setAnswers(answ);
+                console.log(answ);
+            });
+        }
+    }, [pollId]);
+
+    if (!poll) {
+        return <div>Poll not found.</div>;
+    }
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     //const labels = answers.map((_, index) => `Option ${index + 1}`);
     const labels = poll.options.map((opt) => opt.text);
-    console.log(labels);
+    //console.log(labels);
     const data = {
         labels, // Labels for the x-axis
         datasets: [
@@ -85,7 +112,7 @@ function QuestionPage(props: QuestionPageProps) {
         event.preventDefault();
         if (selectedOption) {
             alert(`You selected: ${selectedOption}`);
-            props.handleVote(selectedOption, "A8882E4E-6212-48B5-880A-4AC92A8B49FC");
+            handleVote(selectedOption, "411533D9-BFB0-45AA-93D8-F8C3881666EC");
         } else {
             alert('Please select an option!');
         }

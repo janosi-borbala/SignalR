@@ -87,6 +87,19 @@ export class PollService {
         }
         return Promise.reject("Connection not established");
     }
+
+    public async getPollVotes(pollId: string, userId: string): Promise<any> {
+        if (this.connection) {
+            try {
+                const votes = await this.connection.invoke("GetPollVotes", pollId, userId);
+                return votes;
+            } catch (err) {
+                console.error("Error fetching poll votes:", err);
+                throw err;
+            }
+        }
+        return Promise.reject("Connection not established");
+    }
 }
 
 export const pollService = new PollService();
